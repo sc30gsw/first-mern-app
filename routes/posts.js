@@ -56,5 +56,18 @@ router.delete("/:id", async (req, res) => {
 	}
 });
 
+// 投稿の取得
+router.get("/:id", async (req, res) => {
+	try {
+		// 投稿取得実行
+		const post = await Post.findById(req.params.id);
+		if (!post) return res.status(404).json("投稿が見つかりませんでした");
+
+		return res.status(200).json(post);
+	} catch (err) {
+		return res.status(500).json(err);
+	}
+});
+
 // ルーティング設定をexportする
 module.exports = router;

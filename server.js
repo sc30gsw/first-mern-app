@@ -8,6 +8,22 @@ const authRoute = require("./routes/auth");
 const postsRoute = require("./routes/posts");
 const PORT = 3000;
 
+// mongooseの呼び出し
+const mongoose = require("mongoose");
+
+// 環境変数呼び出し
+require("dotenv").config();
+
+// DB接続
+mongoose
+	.connect(process.env.MONGOURL)
+	.then(() => {
+		console.log("DBと接続中");
+	})
+	.catch((err) => {
+		console.log(err);
+	});
+
 // ミドルウェアの設定
 app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);

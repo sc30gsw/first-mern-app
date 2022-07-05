@@ -40,5 +40,20 @@ router.delete("/:id", async (req, res) => {
 	}
 });
 
+// ユーザー取得
+router.get("/:id", async (req, res) => {
+	try {
+		// ユーザー取得実行
+		const user = await User.findById(req.params.id);
+		// 取得したユーザー情報から各値を分割
+		const { password, updatedAt, ...other } = user._doc;
+		if (!user) return res.status(404).json("ユーザーが見つかりませんでした");
+
+		// password, updatedAtを除く値のみ返却する
+		return res.status(200).json(other);
+	} catch (err) {
+		return res.status(500).json(err);
+	}
+});
 // ルーティング設定をexportする
 module.exports = router;

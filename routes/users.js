@@ -94,5 +94,44 @@ router.put("/:id/follow", async (req, res) => {
 		return res.status(500).json("自分自身をフォローすることはできません");
 	}
 });
+
+// ユーザーのアンフォロー
+router.put("/:id/unfollow", async (req, res) => {
+	// リクエストボディのユーザーIDとリクエストパラメータのIDが等しくない場合
+	if (req.body.userId !== req.params.id) {
+		try {
+			// フォローするユーザーの情報
+			const user = await User.findById(req.params.id);
+			// 自身を表すユーザーの情報
+			const currentUser = await User.findById(req.body.userId);
+
+			// フォロワーにアンフォローするユーザーが存在する場合
+			if (user.followers.includes(req.body.userId)) {
+				// フォローするユーザーのfollowers配列から取り除く
+				await user.updateOne({
+					$pull: {
+						followers: req.body.userId,
+					},
+				});
+
+				// 自身のfollowings配列から取り除く
+				await currentUser.updateOne({
+					$pull: {
+						followings: req.params.id,
+					},
+				});
+
+				return res.status(200).json("フォロー解除しました");
+				// 既にフォローしている場合
+			} else {
+				return res.status(403).json("このユーザーはフォロー解除できません");
+			}
+		} catch (err) {
+			return res.status(500).json(err);
+		}
+	} else {
+		return res.status(500).json("自分自身をフォロー解除することはできません");
+	}
+});
 // ルーティング設定をexportする
 module.exports = router;

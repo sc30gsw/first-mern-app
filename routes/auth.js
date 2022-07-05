@@ -22,5 +22,27 @@ router.post("/register", async (req, res) => {
 	}
 });
 
+// ログイン
+router.post("/login", async (req, res) => {
+	try {
+		// ユーザーをメールアドレスで取得
+		const user = await User.findOne({ email: req.body.email });
+
+		// ユーザーが取得できない場合
+		if (!user) return res.status(404).send("ユーザーが見つかりません");
+
+		// パスワードが一致・不一致検証
+		const validPassword = req.body.password === user.password;
+
+		// パスワード不一致の場合
+		if (!validPassword)
+			return res.status(400).json("パスワードが間違っています");
+
+		return res.status(200).json(user);
+	} catch (err) {
+		return res.status(500).json(err);
+	}
+});
+
 // ルーティング設定をexportする
 module.exports = router;

@@ -37,5 +37,24 @@ router.put("/:id", async (req, res) => {
 		return res.status(403).json(err);
 	}
 });
+
+// 投稿を削除する
+router.delete("/:id", async (req, res) => {
+	try {
+		const post = await Post.findById(req.params.id);
+
+		// 投稿に紐づくユーザーとリクエストボディのユーザーが等しい場合
+		if (post.userId === req.body.userId) {
+			// 投稿削除を実行
+			await post.deleteOne();
+			return res.status(200).json("投稿の削除に成功しました");
+		} else {
+			return res.status(403).json("他のユーザーの投稿は削除できません");
+		}
+	} catch (err) {
+		return res.status(403).json(err);
+	}
+});
+
 // ルーティング設定をexportする
 module.exports = router;

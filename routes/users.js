@@ -23,5 +23,22 @@ router.put("/:id", async (req, res) => {
 	}
 });
 
+// ユーザー削除
+router.delete("/:id", async (req, res) => {
+	// リクエストボディとリクエストパラメータのユーザーIDが等しい場合 || 管理者権限がある場合
+	if (req.body.userId === req.params.id || req.body.isAdmin) {
+		try {
+			// ユーザー削除実行
+			const user = await User.findByIdAndDelete(req.params.id);
+
+			return res.status(200).json("ユーザー情報が削除されました");
+		} catch (err) {
+			return res.status(500).json(err);
+		}
+	} else {
+		return res.status(403).json("自分のアカウントのみ削除できます");
+	}
+});
+
 // ルーティング設定をexportする
 module.exports = router;

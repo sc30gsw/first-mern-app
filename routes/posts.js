@@ -1,7 +1,7 @@
 // 投稿機能用のルーティング設定
 const router = require("express").Router();
 const Post = require("../models/Post");
-const { findByIdAndUpdate } = require("../models/User");
+const User = require("../models/User");
 
 // 投稿作成
 router.post("/", async (req, res) => {
@@ -97,6 +97,30 @@ router.put("/:id/like", async (req, res) => {
 		}
 	} catch (err) {
 		return res.status(500).json(err);
+	}
+});
+
+// タイムラインの投稿を取得する
+router.get("/timeline/all", async (req, res) => {
+	try {
+		// ログインユーザー取得
+		const currentUser = await User.findById(req.body.userId);
+		// ログインユーザーに紐づく投稿を取得
+		const userPosts = await Post.find({ userId: currentUser._id });
+		// ログインユーザーがフォローしているユーザーの投稿を取得
+		// currentUserが取得できるまでPromiseで待機させる
+		const friendPosts = await Promise.all(
+			// ログインユーザーがフォローしているユーザーを1つずつ取り出す
+			currentUser.followings.map((friendId) => {
+				// ログインユーザーがフォローしているユーザーの投稿をfriendPostに返す
+				return Post.find({ userId: friendId });
+			})
+		);
+
+		// ログインユーザーに紐づく投稿とログインユーザーがフォローしているユーザーの投稿を連結して返却する
+		return res.status(200).json(userPosts.concat(...friendPosts));
+	} catch (err) {
+		return ree.status(500).res(err);
 	}
 });
 
